@@ -66,37 +66,44 @@ async def handle_group_selection(callback: CallbackQuery, state: FSMContext) -> 
 # Обработчик выбора дня недели
 @user_router.callback_query(StateFilter(ScheduleState.select_day))
 async def handle_select_day(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.answer()  # Уведомляем Telegram о том, что колбек обработан
+    user_data = await state.get_data()
+    group_name = user_data.get("group_name")
 
-    user_data = await state.get_data()  # Получаем данные состояния пользователя
-    group_name = user_data["group_name"]  # Извлекаем название группы
+    if not group_name:
+        await callback.answer("Ошибка: Группа не выбрана.", show_alert=True)
+        return
 
-    day_id = callback.data.replace("day_", "")  # Получаем id дня недели из callback_data
+    day_id = callback.data.replace("day_", "")  # Извлекаем числовую часть
 
-    if day_id.isdigit():  # Проверяем, является ли day_id числом
+    if day_id.isdigit():
         day_id = int(day_id)  # Преобразуем в число
     else:
-        await callback.answer("Ошибка: Неверный формат данных.", show_alert=True)  # Сообщаем об ошибке формата данных
+        await callback.answer("Ошибка: Неверный формат данных.", show_alert=True)
         return
 
-    day_of_week = None if day_id == 7 else day_id  # Если выбран пункт "Все дни", передаем None
+    day_of_week = None if day_id == 7 else day_id
 
-    schedule = get_group_schedule(group_name, day_of_week)  # Получаем расписание из базы данных
+    schedule = get_group_schedule(group_name, day_of_week)
 
-    if not schedule:  # Если расписание не найдено для выбранного дня
-        await callback.message.edit_text("Расписание не найдено для этого дня.")  # Информируем пользователя
+    if not schedule:
+        await callback.message.edit_text(
+            text="Расписание не найдено для этого дня.",
+            reply_markup=get_days_keyboard()  # Повторная клавиатура для выбора
+        )
         return
 
-    if day_id == 7:  # Если выбраны все дни, выводим расписание для всех дней
+    if day_id == 7:
         text = "\n\n".join(
             create_text_schedule(schedule, day) for day in range(1, 7)
-            # Генерируем текст расписания для каждого дня недели
         )
     else:
-        text = create_text_schedule(schedule, day_of_week)  # Генерируем текст расписания для одного дня
+        text = create_text_schedule(schedule, day_of_week)
 
-    await callback.message.edit_text(text)  # Изменяем текст сообщения на полученное расписание
-    await state.clear()  # Очищаем состояние пользователя
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=get_days_keyboard()  # Оставляем клавиатуру
+    )
+
 
 
 # Обработчик команды /report
