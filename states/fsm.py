@@ -18,6 +18,7 @@ class AdminDialogStates(StatesGroup):
     admin_menu = State()  # Состояние для отображения меню администратора
     stats = State()       # Состояние для просмотра статистики
     users = State()      # Состояние для управления пользователями
+    confirm_exit = State()
 
 # Определяем группу состояний для поддержки
 class SupportState(StatesGroup):
