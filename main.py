@@ -12,6 +12,7 @@ from handlers.admin_handlers import admin_router
 from dialogs.admin_menu import admin_dialog
 from config_data.config import load_config, Config  # Импорт функции и класса для конфигурации
 from filters.is_admin import IsAdminFilter
+from middlewares.admin_middleware import AdminMiddleware
 
 # Загрузка конфигурации из файла .env
 config: Config = load_config()  # Создаем объект конфигурации
@@ -36,6 +37,10 @@ async def main() -> None:
     # Применение фильтра для сообщений от администраторов
     admin_ids = config.tg_bot.admin_ids  # Получение списка ID администраторов из конфигурации
     admin_router.message.filter(IsAdminFilter(admin_ids=admin_ids))  # Фильтр для администраторских сообщений
+    # Подключаем middleware с базой данных и идентификатором бота
+
+    # Подключаем middleware с базой данных и идентификатором бота
+    dp.message.middleware(AdminMiddleware('', ''))
 
     # Запуск поллинга
     await dp.start_polling(bot)
