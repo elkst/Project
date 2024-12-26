@@ -23,18 +23,22 @@ user_router = Router(name=__name__)  # Создаем новый роутер д
 
 
 @user_router.message(CommandStart())  # Обработчик команды /start
-async def command_start_handler(message: Message) -> None:
+async def command_start_handler(message: Message, state: FSMContext) -> None:
     telegram_id = message.from_user.id  # Получаем ID пользователя из сообщения
     first_name = message.from_user.first_name  # Получаем имя пользователя
 
     # Регистрируем пользователя в базе данных
     register_user(telegram_id, first_name)
 
+    # Очищаем состояние перед отправкой приветственного сообщения
+    await state.clear()
+
     # Отправляем приветственное сообщение с основным меню
     await message.answer(
         text=LEXICON_RU['/start'],  # Текст приветствия из словаря
         reply_markup=get_main_menu_keyboard(),  # Клавиатура основного меню
     )
+
 
 
 # Обработчик нажатия кнопки "Расписание"
@@ -78,10 +82,10 @@ async def handle_select_day(callback: CallbackQuery, state: FSMContext) -> None:
     if day_id.isdigit():
         day_id = int(day_id)  # Преобразуем в число
     else:
-        await callback.answer("Ошибка: Неверный формат данных.", show_alert=True)
+        await callback.answer("Ошибка: высокая загруженность!", show_alert=True)
         return
 
-    day_of_week = None if day_id == 7 else day_id
+    day_of_week = None if day_id == 6 else day_id
 
     schedule = get_group_schedule(group_name, day_of_week)
 
@@ -92,9 +96,9 @@ async def handle_select_day(callback: CallbackQuery, state: FSMContext) -> None:
         )
         return
 
-    if day_id == 7:
+    if day_id == 6:
         text = "\n\n".join(
-            create_text_schedule(schedule, day) for day in range(1, 7)
+            create_text_schedule(schedule, day) for day in range(1, 6)
         )
     else:
         text = create_text_schedule(schedule, day_of_week)

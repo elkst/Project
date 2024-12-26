@@ -52,8 +52,7 @@ def get_days_keyboard():
         {"name": "Ср", "id": 3},
         {"name": "Чт", "id": 4},
         {"name": "Пт", "id": 5},
-        {"name": "Сб", "id": 6},
-        {"name": "Все дни", "id": 7}
+        {"name": "Сб", "id": 6}
     ]
     builder = InlineKeyboardBuilder()
     for day in days:
