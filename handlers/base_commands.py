@@ -2,12 +2,14 @@ from aiogram import Router, Bot  # Импортируем Router и Bot из б�
 from aiogram.filters import Command, CommandStart, StateFilter  # Импортируем фильтры для обработки команд и состояний
 from aiogram.fsm.context import FSMContext  # Импортируем контекст для работы с состояниями
 from aiogram.types import Message, CallbackQuery  # Импортируем типы сообщений и колбек-запросов
+from aiogram_dialog import StartMode
 
 from database.methods.methods import register_user, get_group_schedule  # Импортируем функции для работы с базой данных
 from keyboards.keyboards import get_group_selection_keyboard, get_days_keyboard, \
     get_main_menu_keyboard  # Импортируем функции для создания клавиатур
 from lexicon.lexicon import LEXICON_RU  # Импортируем словарь с текстами на русском языке
-from states.fsm import ScheduleState, ReportState  # Импортируем состояния для управления логикой бота
+from states.fsm import ScheduleState, ReportState, \
+    BuildingDialogStates  # Импортируем состояния для управления логикой бота
 from database.misc import create_text_schedule  # Импортируем функцию для создания текстового расписания
 
 import os  # Импортируем модуль os для работы с окружением
@@ -30,7 +32,6 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     # Регистрируем пользователя в базе данных
     register_user(telegram_id, first_name)
 
-    # Очищаем состояние перед отправкой приветственного сообщения
     await state.clear()
 
     # Отправляем приветственное сообщение с основным меню
@@ -38,7 +39,6 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
         text=LEXICON_RU['/start'],  # Текст приветствия из словаря
         reply_markup=get_main_menu_keyboard(),  # Клавиатура основного меню
     )
-
 
 
 # Обработчик нажатия кнопки "Расписание"
@@ -82,7 +82,7 @@ async def handle_select_day(callback: CallbackQuery, state: FSMContext) -> None:
     if day_id.isdigit():
         day_id = int(day_id)  # Преобразуем в число
     else:
-        await callback.answer("Ошибка: высокая загруженность!", show_alert=True)
+        await callback.answer("Ошибка: Неверный формат данных.", show_alert=True)
         return
 
     day_of_week = None if day_id == 6 else day_id
@@ -107,7 +107,6 @@ async def handle_select_day(callback: CallbackQuery, state: FSMContext) -> None:
         text=text,
         reply_markup=get_days_keyboard()  # Оставляем клавиатуру
     )
-
 
 
 # Обработчик команды /report
@@ -145,3 +144,17 @@ async def handle_contact_admin_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     admin_contact = "Вы можете связаться с администратором, написав ему в личные сообщения: https://t.me/olkdz"
     await callback.message.answer(admin_contact)  # Отправляем контактную информацию администратора пользователю
+
+@user_router.callback_query(lambda c: c.data.startswith('main_menu:buildings'))
+async def handle_buildings_callback(callback: CallbackQuery, dialog_manager) -> None:
+    await callback.answer()
+
+    result = await dialog_manager.start(BuildingDialogStates.main, mode=StartMode.NORMAL)
+
+    print(f"Dialog result: {result}")  # Отладочный вывод
+
+    if result == "back_to_start":
+        await callback.message.answer(
+            text=LEXICON_RU['/start'],  # Текст приветствия из словаря
+            reply_markup=get_main_menu_keyboard(),  # Клавиатура основного меню
+        )

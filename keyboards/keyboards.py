@@ -20,10 +20,14 @@ def get_main_menu_keyboard():
             callback_data=MainMenuCallbackFactory(action="schedule").pack()
         ),
         InlineKeyboardButton(
+            text="🏢 Найти Корпус БГИТУ",
+            callback_data=MainMenuCallbackFactory(action="buildings").pack()
+        ),
+        InlineKeyboardButton(
             text="💳 Поддержать",
             callback_data=MainMenuCallbackFactory(action="support").pack()
         ),
-        width=1  # Устанавливаем ширину строки (по одной кнопке в строке)
+        width=1
     )
     return builder.as_markup()
 

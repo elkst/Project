@@ -1,8 +1,14 @@
-from aiogram_dialog import Window, Dialog
+from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Back
 from aiogram_dialog.widgets.text import Const, Format
 from handlers.admin_handlers import show_users
 from states.fsm import AdminDialogStates
+from aiogram_dialog import DialogManager
+
+
+async def clear_exit_message(dialog_manager: DialogManager):
+    dialog_manager.dialog_data.clear()
+
 
 # Главное меню админ-панели
 admin_menu = Window(
@@ -23,7 +29,7 @@ admin_menu = Window(
 # Окно списка пользователей
 users = Window(
     Format("📋 Список пользователей:\n\n{users_text}"),
-    Back(Const("Назад")),
+    Back(Const("🔙 Назад")),
     state=AdminDialogStates.users,
     getter=show_users
 )
@@ -34,7 +40,7 @@ confirm_exit = Window(
     Button(
         Const("Да"),
         id="confirm_exit_yes",
-        on_click=lambda c, widget, manager: manager.done()
+        on_click=lambda c, widget, manager: manager.switch_to(AdminDialogStates.exit_message)
     ),
     Button(
         Const("Нет"),
@@ -44,9 +50,17 @@ confirm_exit = Window(
     state=AdminDialogStates.confirm_exit,
 )
 
+# Окно с сообщением "Вы вышли из панели"
+exit_message = Window(
+    Format("Вы вышли из панели"),
+    Button(Const("Ок"), id="back", on_click=lambda c, widget, manager: manager.done()),
+    state=AdminDialogStates.exit_message,
+)
+
 # Диалог
 admin_dialog = Dialog(
     admin_menu,
     users,
-    confirm_exit
+    confirm_exit,
+    exit_message
 )

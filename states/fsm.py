@@ -19,7 +19,12 @@ class AdminDialogStates(StatesGroup):
     stats = State()       # Состояние для просмотра статистики
     users = State()      # Состояние для управления пользователями
     confirm_exit = State()
-
+    exit_message = State()
 # Определяем группу состояний для поддержки
 class SupportState(StatesGroup):
     waiting_for_payment = State()  # Состояние ожидания подтверждения оплаты
+
+class BuildingDialogStates(StatesGroup):
+    main = State()
+    building_1 = State()
+    building_2 = State()

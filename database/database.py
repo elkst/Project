@@ -1,5 +1,6 @@
 import sqlite3
 
+
 def create_db():
     # Создание базы данных и таблиц
     conn = sqlite3.connect('database/schedule_bot.db')
@@ -30,6 +31,6 @@ def create_db():
     conn.commit()
     conn.close()
 
+
 # Создаём базу данных
 create_db()
-

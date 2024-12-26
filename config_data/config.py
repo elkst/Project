@@ -1,15 +1,18 @@
 from dataclasses import dataclass  # Для создания структур данных
 from environs import Env  # Удобная работа с переменными окружения
 
+
 @dataclass
 class TgBot:
     token: str  # Токен для взаимодействия с Telegram Bot API
     admin_ids: list[int]  # Список ID администраторов
 
+
 # Главный класс конфигурации, объединяющий все настройки
 @dataclass
 class Config:
     tg_bot: TgBot  # Настройки Telegram-бота
+
 
 # Функция загрузки конфигурации из файла .env
 def load_config(path: str | None = None) -> Config:

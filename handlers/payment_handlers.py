@@ -1,6 +1,5 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, CallbackQuery, PreCheckoutQuery, ContentType, LabeledPrice
-from keyboards.pay_menu import pay_btn_bldr
 
 payment_router = Router()
 

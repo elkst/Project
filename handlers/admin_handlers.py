@@ -1,5 +1,4 @@
 from aiogram import Router
-from aiogram.types import Message
 from aiogram.filters.command import Command
 from aiogram_dialog import DialogManager, StartMode
 
@@ -24,5 +23,5 @@ async def show_users(dialog_manager: DialogManager, **kwargs) -> dict:
 
 # вызов диалога админа
 @admin_router.message(Command("admin"), IsAdminFilter)
-async def admin_panel(message: Message, dialog_manager: DialogManager):
+async def admin_panel(dialog_manager: DialogManager):
     await dialog_manager.start(AdminDialogStates.admin_menu, mode=StartMode.RESET_STACK)
